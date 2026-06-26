@@ -1,2 +1,125 @@
 @import "tailwindcss";
 
+@import 'leaflet/dist/leaflet.css';
+ :root {
+
+  /* ── Forest green — primary brand ───────────────────────── */
+  --forest-50:  #eaf3de;
+  --forest-100: #c0dd97;
+  --forest-200: #8a9a6a;
+  --forest-300: #6b7c45;
+  --forest-400: #4a5c2a;
+  --forest-500: #3a4a20;
+  --forest-600: #2c3a14;
+
+  /* ── Coral — alert / secondary CTA ─────────────────────── */
+  --coral-50:  #faece7;
+  --coral-100: #f5c4b3;
+  --coral-200: #f0997b;
+  --coral-300: #d85a30;
+  --coral-400: #b84a22;
+  --coral-500: #993c1d;
+  --coral-600: #712b13;
+
+  /* ── Purple — mental / behavioral needs ─────────────────── */
+  --purple-50:  #f0ebfa;
+  --purple-100: #d8ccf0;
+  --purple-200: #b49ad8;
+  --purple-300: #8a6ab5;
+  --purple-400: #6a4a99;
+  --purple-500: #5a3d8a;
+  --purple-600: #3c2870;
+
+  /* ── Blue — admin posts ─────────────────────────────────── */
+  --blue-50:  #e6f1fb;
+  --blue-100: #b5d4f4;
+  --blue-200: #85b7eb;
+  --blue-300: #378add;
+  --blue-400: #185fa5;
+  --blue-500: #0c447c;
+  --blue-600: #042c53;
+
+  /* ── Green — healthy / success / location ───────────────── */
+  --green-50:  #eaf3de;
+  --green-100: #c0dd97;
+  --green-200: #97c459;
+  --green-300: #639922;
+  --green-400: #3b6d11;
+  --green-500: #27500a;
+  --green-600: #173404;
+
+  /* ── Neutral — surfaces, borders, text ──────────────────── */
+  --neutral-50:  #f5f2ea;
+  --neutral-100: #e8e4d9;
+  --neutral-200: #d4cfbf;
+  --neutral-300: #b4b29a;
+  --neutral-400: #888780;
+  --neutral-500: #5f5e5a;
+  --neutral-600: #444441;
+  --neutral-700: #2c2c2a;
+
+  /* ── Semantic surface aliases ────────────────────────────── */
+  --color-page:          var(--neutral-100);
+  --color-surface:       var(--neutral-50);
+  --color-surface-pure:  #ffffff;
+  --color-border:        var(--neutral-200);
+
+  /* ── Semantic text aliases ───────────────────────────────── */
+  --color-text-heading:  var(--forest-600);
+  --color-text-body:     var(--forest-400);
+  --color-text-muted:    var(--forest-300);
+  --color-text-faint:    var(--forest-200);
+
+  /* ── Semantic action aliases ─────────────────────────────── */
+  --color-primary:        var(--forest-400);
+  --color-primary-hover:  var(--forest-500);
+  --color-on-primary:     var(--neutral-100);
+
+  --color-cta:            var(--coral-300);
+  --color-cta-hover:      var(--coral-400);
+  --color-on-cta:         #ffffff;
+
+  /* ── Semantic status tag aliases ─────────────────────────── */
+  --color-healthy-bg:      var(--green-50);
+  --color-healthy-text:    var(--green-400);
+  --color-physical-bg:     var(--coral-50);
+  --color-physical-text:   var(--coral-500);
+  --color-mental-bg:       var(--purple-50);
+  --color-mental-text:     var(--purple-500);
+  --color-admin-bg:        var(--blue-50);
+  --color-admin-text:      var(--blue-400);
+
+  /* ── Map dot colors ──────────────────────────────────────── */
+  --color-dot-healthy:   var(--green-400);
+  --color-dot-physical:  var(--coral-300);
+  --color-dot-mental:    var(--purple-300);
+  --color-dot-admin:     var(--blue-400);
+
+  /* ── Error / alert surface ───────────────────────────────── */
+  --color-error-bg:      var(--coral-50);
+  --color-error-border:  #e8c0b0;
+  --color-error-text:    var(--coral-500);
+
+  /* ── Location surface ────────────────────────────────────── */
+  --color-location-bg:   var(--green-50);
+  --color-location-text: var(--green-400);
+
+  /* ── Border radii ────────────────────────────────────────── */
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    16px;
+  --radius-xl:    24px;
+  --radius-pill:  9999px;
+
+  /* ── Box shadows ─────────────────────────────────────────── */
+  --shadow-card:   0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-float:  0 4px 16px rgba(0, 0, 0, 0.10);
+  --shadow-sheet:  0 -4px 32px rgba(0, 0, 0, 0.14);
+
+  /* ── Motion ──────────────────────────────────────────────── */
+  --duration-fast:  120ms;
+  --duration-base:  200ms;
+  --duration-slow:  350ms;
+  --ease-spring:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+}
