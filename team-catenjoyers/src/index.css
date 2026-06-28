@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap');
+@import 'tailwindcss';
+
+:root {
+  color-scheme: light;
+  --font-display: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  --font-body: 'Nunito', 'Segoe UI', sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/Backgroundimage/background.jpg');
+  background-repeat: repeat;
+  background-size: 420px auto;
+  background-position: top left;
+  opacity: 0.50;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 245, 213, 0.82), rgba(255, 245, 213, 0) 30%),
+    radial-gradient(circle at 84% 96%, rgba(235, 133, 67, 0.18), rgba(235, 133, 67, 0) 34%),
+    #eee3c7;
+  color: #46522d;
+}
+
+@keyframes fadeLift {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
