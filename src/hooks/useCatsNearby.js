@@ -1,31 +1,50 @@
+// src/hooks/useCatsNearby.js
 import { useState, useEffect } from 'react'
-import { supabase } from '../../supabase' 
+import { supabase } from '../lib/supabase'
 
-export function useCatsNearby({ coords, radiusMiles, filter }) {
+// Standalone fetch — used by FindCats.jsx directly
+export async function fetchCatsNearby(lat, lng, radiusMiles) {
+  const radiusMeters = radiusMiles * 1609.34
+  const { data, error } = await supabase.rpc('cats_within_radius', {
+    user_lat: lat,   // ← must match your SQL function param names
+    user_lng: lng,
+    radius_m: radiusMeters,
+  })
+  if (error) throw error
+  return (data ?? []).map((c) => ({
+    ...c,
+    distance_km: c.distance_m / 1000,
+  }))
+}
+
+// Hook — used anywhere you want reactive fetching
+export default function useCatsNearby({ coords, radiusMiles, filter }) {
   const [cats, setCats] = useState([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!coords) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    let cancelled = false
     setLoading(true)
+    setError(null)
 
-    const radiusMeters = radiusMiles * 1609.34
-    supabase
-      .rpc('cats_within_radius', {
-        lat: coords.lat,
-        lng: coords.lng,
-        radius_m: radiusMeters,
-      })
-      .then(({ data, error }) => {
-        if (error) { console.error(error); setLoading(false); return }
-        const filtered = filter === 'all'
-          ? data
-          : data.filter(c => c.disability_type === filter)
+    fetchCatsNearby(coords.lat, coords.lng, radiusMiles)
+      .then((data) => {
+        if (cancelled) return
+        const filtered =
+          filter === 'all' ? data : data.filter((c) => c.disability_type === filter)
         setCats(filtered)
-        setLoading(false)
       })
+      .catch((err) => {
+        if (!cancelled) setError(err.message ?? 'Failed to load cats.')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => { cancelled = true }
   }, [coords, radiusMiles, filter])
 
-  return { cats, loading }
+  return { cats, loading, error }
 }

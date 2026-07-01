@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Camera, MapPin, Loader2, CheckCircle } from 'lucide-react'
-import { supabase } from '../../../supabase'
+import { supabase } from '../../lib/supabase'
 
 const DISABILITY_OPTIONS = [
-  { value: 'non-disabled', label: 'Non-disabled / Healthy',       activeBg: 'var(--color-healthy-bg)',  activeBorder: 'var(--color-healthy-text)' },
-  { value: 'physical',     label: 'Physical disability',           activeBg: 'var(--color-physical-bg)', activeBorder: 'var(--color-physical-text)' },
-  { value: 'mental',       label: 'Mental / behavioral needs',     activeBg: 'var(--color-mental-bg)',   activeBorder: 'var(--color-mental-text)' },
+  { value: 'non-disabled', label: 'Non-disabled / Healthy',   activeBg: 'var(--color-healthy-bg)',  activeBorder: 'var(--color-healthy-text)' },
+  { value: 'physical',     label: 'Physical disability',       activeBg: 'var(--color-physical-bg)', activeBorder: 'var(--color-physical-text)' },
+  { value: 'mental',       label: 'Mental / behavioral needs', activeBg: 'var(--color-mental-bg)',   activeBorder: 'var(--color-mental-text)' },
 ]
 
 const DURATION_OPTIONS = [
@@ -63,9 +63,14 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
     }
 
     const { error: insertError } = await supabase.from('cats').insert({
-      name: form.name.trim(), disability_type: form.disability_type,
-      duration: form.duration, description: form.description.trim() || null,
-      lat: coords.lat, lng: coords.lng, photo_url, posted_by: 'user',
+      name:            form.name.trim(),
+      disability_type: form.disability_type,
+      duration:        form.duration,
+      description:     form.description.trim() || null,
+      lat:             coords.lat,
+      lng:             coords.lng,
+      photo_url,
+      posted_by:       'user', // TODO: replace with auth user id once auth is set up
     })
 
     if (insertError) { setError(`Failed to post: ${insertError.message}`); setLoading(false); return }
@@ -91,12 +96,9 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
         className="w-full max-w-lg rounded-t-3xl overflow-y-auto"
         style={{ background: 'var(--color-surface)', boxShadow: 'var(--shadow-sheet)', maxHeight: '92svh' }}
       >
-        {/* Drag handle */}
         <div className="w-9 h-1 rounded-full mx-auto mt-3 mb-0.5" style={{ background: 'var(--color-border)' }} />
 
         <AnimatePresence mode="wait">
-
-          {/* Step 2: Success */}
           {step === 2 ? (
             <motion.div
               key="success"
@@ -105,7 +107,7 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center px-6 py-10 pb-12 text-center gap-3"
             >
-              <div className="w-18 h-18 rounded-full flex items-center justify-center mb-1" style={{ background: 'var(--color-healthy-bg)', width: 72, height: 72 }}>
+              <div className="rounded-full flex items-center justify-center mb-1" style={{ background: 'var(--color-healthy-bg)', width: 72, height: 72 }}>
                 <CheckCircle size={34} style={{ color: 'var(--color-healthy-text)' }} strokeWidth={1.8} />
               </div>
               <h3 className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--color-text-heading)' }}>Cat posted!</h3>
@@ -122,31 +124,19 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                 See nearby cats
               </motion.button>
             </motion.div>
-
           ) : (
-
-            /* Step 1: Form */
             <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-
-              {/* Header */}
               <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
                 <div>
                   <h2 className="text-[15px] font-bold" style={{ color: 'var(--color-text-heading)' }}>Post a stray cat</h2>
                   <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-faint)' }}>Your location is attached automatically</p>
                 </div>
-                <button
-                  onClick={onClose}
-                  aria-label="Close"
-                  className="w-8 h-8 flex items-center justify-center rounded-full transition-colors"
-                  style={{ color: 'var(--color-text-faint)' }}
-                >
+                <button onClick={onClose} aria-label="Close" className="w-8 h-8 flex items-center justify-center rounded-full" style={{ color: 'var(--color-text-faint)' }}>
                   <X size={17} />
                 </button>
               </div>
 
-              {/* Body */}
               <form onSubmit={handleSubmit} className="px-5 py-4 flex flex-col gap-4 pb-8">
-
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -4 }}
@@ -158,7 +148,6 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                   </motion.div>
                 )}
 
-                {/* Cat name */}
                 <Field label="Cat name or nickname" required>
                   <input
                     type="text"
@@ -167,15 +156,10 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                     onChange={(e) => handleField('name', e.target.value)}
                     placeholder="Orange tabby from Rizal St"
                     className="w-full rounded-xl px-3.5 py-2.5 text-[13px] outline-none border transition-colors"
-                    style={{
-                      background: 'var(--color-surface-pure)',
-                      color: 'var(--color-text-heading)',
-                      borderColor: 'var(--forest-100)',
-                    }}
+                    style={{ background: 'var(--color-surface-pure)', color: 'var(--color-text-heading)', borderColor: 'var(--forest-100)' }}
                   />
                 </Field>
 
-                {/* Care category */}
                 <Field label="Care category">
                   <div className="flex flex-col gap-2">
                     {DISABILITY_OPTIONS.map((opt) => {
@@ -204,17 +188,12 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                   </div>
                 </Field>
 
-                {/* Foster duration */}
                 <Field label="Foster duration needed">
                   <select
                     value={form.duration}
                     onChange={(e) => handleField('duration', e.target.value)}
                     className="w-full rounded-xl px-3.5 py-2.5 text-[13px] outline-none border appearance-none cursor-pointer"
-                    style={{
-                      background: 'var(--color-surface-pure)',
-                      color: 'var(--color-text-heading)',
-                      borderColor: 'var(--forest-100)',
-                    }}
+                    style={{ background: 'var(--color-surface-pure)', color: 'var(--color-text-heading)', borderColor: 'var(--forest-100)' }}
                   >
                     {DURATION_OPTIONS.map((d) => (
                       <option key={d.value} value={d.value}>{d.label}</option>
@@ -222,7 +201,6 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                   </select>
                 </Field>
 
-                {/* Description */}
                 <Field label="Description" optional>
                   <textarea
                     rows={3}
@@ -230,15 +208,10 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                     onChange={(e) => handleField('description', e.target.value)}
                     placeholder="Where you found them, their condition, behaviour, markings…"
                     className="w-full rounded-xl px-3.5 py-2.5 text-[13px] outline-none border resize-none transition-colors"
-                    style={{
-                      background: 'var(--color-surface-pure)',
-                      color: 'var(--color-text-heading)',
-                      borderColor: 'var(--forest-100)',
-                    }}
+                    style={{ background: 'var(--color-surface-pure)', color: 'var(--color-text-heading)', borderColor: 'var(--forest-100)' }}
                   />
                 </Field>
 
-                {/* Photo */}
                 <Field label="Photo" optional>
                   {photoPreview ? (
                     <div className="relative rounded-xl overflow-hidden border" style={{ borderColor: 'var(--forest-100)' }}>
@@ -247,7 +220,7 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                         type="button"
                         onClick={() => { setPhoto(null); setPhotoPreview(null) }}
                         aria-label="Remove photo"
-                        className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full text-white transition-colors"
+                        className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full text-white"
                         style={{ background: 'rgba(0,0,0,0.5)' }}
                       >
                         <X size={13} />
@@ -265,7 +238,6 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                   )}
                 </Field>
 
-                {/* Location */}
                 <div className="flex items-center gap-2 rounded-xl px-3.5 py-2.5" style={{ background: 'var(--color-location-bg)' }}>
                   <MapPin size={13} strokeWidth={2} style={{ color: 'var(--color-location-text)', flexShrink: 0 }} />
                   <p className="text-xs" style={{ color: 'var(--color-location-text)' }}>
@@ -275,7 +247,6 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                   </p>
                 </div>
 
-                {/* Submit */}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -291,11 +262,9 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                     </span>
                   ) : 'Post cat'}
                 </motion.button>
-
               </form>
             </motion.div>
           )}
-
         </AnimatePresence>
       </motion.div>
     </motion.div>

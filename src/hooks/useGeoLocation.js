@@ -1,3 +1,4 @@
+// src/hooks/useGeolocation.js
 import { useState, useEffect } from 'react'
 
 export function useGeolocation() {
@@ -25,13 +26,13 @@ export function useGeolocation() {
             { headers: { 'Accept-Language': 'en' } }
           )
           const data = await res.json()
-          const cityName =
+          setCity(
             data.address?.city ||
             data.address?.town ||
             data.address?.village ||
             data.address?.county ||
             'Your city'
-          setCity(cityName)
+          )
         } catch {
           setCity('Your city')
         }
