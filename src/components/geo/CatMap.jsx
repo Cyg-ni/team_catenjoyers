@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -10,9 +9,9 @@ export async function fetchCatsNearby(lat, lng, radiusMiles) {
   const radiusMeters = radiusMiles * 1609.34
 
   const { data, error } = await supabase.rpc('cats_within_radius', {
-    user_lat:  lat,
-    user_lng:  lng,
-    radius_m:  radiusMeters,
+    user_lat: lat,
+    user_lng: lng,
+    radius_m: radiusMeters,
   })
   if (error) throw error
 
@@ -34,15 +33,16 @@ export async function fetchCatsNearbyBbox(lat, lng, radiusMiles) {
 }
 
 import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet'
+import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import GeoCatMarker from './CatMarker'
 import GeoRadiusRing from './radiusRing'
 
 const DEFAULT_CENTER = { lat: 14.5995, lng: 120.9842 }
-const DEFAULT_ZOOM   = 12
-const LOCATED_ZOOM   = 14
+const DEFAULT_ZOOM = 12
+const LOCATED_ZOOM = 14
 
 const DEV_FALLBACK_CATS = [
   {
@@ -97,12 +97,34 @@ function MapController({ coords }) {
     if (!coords) return
     const zoom = hasLocated ? map.getZoom() : LOCATED_ZOOM
     map.setView([coords.lat, coords.lng], zoom, { animate: true, duration: 1 })
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasLocated(true)
-  }, [coords])   // eslint-disable-line react-hooks/exhaustive-deps
+  }, [coords])
 
   return null
 }
+
+function LocationPicker({ active, onPick }) {
+  useMapEvents({
+    click(e) {
+      if (!active) return
+      onPick({ lat: e.latlng.lat, lng: e.latlng.lng })
+    },
+  })
+  return null
+}
+
+const pickedIcon = new L.DivIcon({
+  className: '',
+  html: `
+    <div style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-100%);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.42-3.58-8-8-8z" fill="#c1440e" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="12" cy="10" r="3" fill="#fff"/>
+      </svg>
+    </div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 28],
+})
 
 export default function CatMap({
   coords,
@@ -110,22 +132,27 @@ export default function CatMap({
   radiusMiles = 10,
   onCatClick,
   selectedCatId,
+  pickMode = false,
+  pickedCoords = null,
+  onLocationPick,
 }) {
   const center = coords ?? DEFAULT_CENTER
-
   const cats = catsProp.length > 0 ? catsProp : DEV_FALLBACK_CATS
 
   return (
-    <div className="relative w-full h-full">
+    <div
+      className="relative w-full h-full"
+      style={pickMode ? { cursor: 'crosshair' } : undefined}
+    >
       <MapContainer
         center={[center.lat, center.lng]}
         zoom={DEFAULT_ZOOM}
         style={{ width: '100%', height: '100%' }}
         zoomControl={true}
         scrollWheelZoom={true}
-
       >
         <MapController coords={coords} />
+        <LocationPicker active={pickMode} onPick={onLocationPick} />
 
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -142,16 +169,25 @@ export default function CatMap({
             onClick={onCatClick}
           />
         ))}
+
+        {pickedCoords && (
+          <Marker position={[pickedCoords.lat, pickedCoords.lng]} icon={pickedIcon} />
+        )}
       </MapContainer>
+
+      {pickMode && (
+        <div
+          className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] px-4 py-2 rounded-full text-[12px] font-semibold shadow-lg pointer-events-none"
+          style={{ background: 'var(--color-cta)', color: 'var(--color-on-cta)' }}
+        >
+          Tap the map to drop a pin for this cat
+        </div>
+      )}
 
       {catsProp.length === 0 && (
         <div
           className="absolute top-3 right-3 z-[1000] px-2.5 py-1 rounded-full text-[10px] font-bold pointer-events-none"
-          style={{
-            background: '#fef3c7',
-            color: '#92400e',
-            border: '1px solid #fde68a',
-          }}
+          style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }}
         >
           DEV · fake markers
         </div>
@@ -162,9 +198,9 @@ export default function CatMap({
           <div
             className="flex items-center gap-2.5 px-4 py-2.5 rounded-full text-[12px] font-semibold shadow-lg pointer-events-auto"
             style={{
-              background:  'var(--color-surface)',
-              color:       'var(--color-text-body)',
-              border:      '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
+              color: 'var(--color-text-body)',
+              border: '1px solid var(--color-border)',
             }}
           >
             <span

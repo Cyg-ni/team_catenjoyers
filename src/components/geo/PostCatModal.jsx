@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Camera, MapPin, Loader2, CheckCircle } from 'lucide-react'
+import { X, Camera, MapPin, Crosshair, Loader2, CheckCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 const DISABILITY_OPTIONS = [
@@ -16,7 +16,14 @@ const DURATION_OPTIONS = [
   { value: '4weeks+',  label: '4 weeks or more' },
 ]
 
-export default function PostCatModal({ coords, onClose, onPosted }) {
+export default function PostCatModal({
+  coords,
+  usingPickedLocation = false,
+  onRequestPickLocation,
+  onUseCurrentLocation,
+  onClose,
+  onPosted,
+})  {
   const [form, setForm] = useState({
     name: '',
     disability_type: 'non-disabled',
@@ -238,11 +245,64 @@ export default function PostCatModal({ coords, onClose, onPosted }) {
                   )}
                 </Field>
 
-                <div className="flex items-center gap-2 rounded-xl px-3.5 py-2.5" style={{ background: 'var(--color-location-bg)' }}>
+                <Field label="Cat's location">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={onUseCurrentLocation}
+                      className="flex flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-3 transition-colors"
+                      style={!usingPickedLocation
+                        ? { background: 'var(--color-healthy-bg)', borderColor: 'var(--color-primary)' }
+                        : { background: 'var(--color-surface-pure)', borderColor: 'var(--color-border)' }
+                      }
+                    >
+                      <MapPin
+                        size={18}
+                        strokeWidth={2}
+                        style={{ color: !usingPickedLocation ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                      />
+                      <span
+                        className="text-[12px] font-bold"
+                        style={{ color: !usingPickedLocation ? 'var(--color-text-heading)' : 'var(--color-text-muted)' }}
+                      >
+                        Current location
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={onRequestPickLocation}
+                      className="flex flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-3 transition-colors"
+                      style={usingPickedLocation
+                        ? { background: 'var(--color-healthy-bg)', borderColor: 'var(--color-primary)' }
+                        : { background: 'var(--color-surface-pure)', borderColor: 'var(--color-border)' }
+                      }
+                    >
+                      <Crosshair
+                        size={18}
+                        strokeWidth={2}
+                        style={{ color: usingPickedLocation ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                      />
+                      <span
+                        className="text-[12px] font-bold"
+                        style={{ color: usingPickedLocation ? 'var(--color-text-heading)' : 'var(--color-text-muted)' }}
+                      >
+                        Choose on map
+                      </span>
+                    </button>
+                  </div>
+                </Field>
+
+                <div
+                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5"
+                  style={{ background: 'var(--color-location-bg)' }}
+                >
                   <MapPin size={13} strokeWidth={2} style={{ color: 'var(--color-location-text)', flexShrink: 0 }} />
                   <p className="text-xs" style={{ color: 'var(--color-location-text)' }}>
                     {coords
-                      ? `Location saved (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})`
+                      ? usingPickedLocation
+                        ? `Pin dropped (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})`
+                        : `Using current location (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})`
                       : 'Waiting for location…'}
                   </p>
                 </div>
